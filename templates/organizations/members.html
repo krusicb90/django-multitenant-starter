@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Members - {{ site_name }}{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">Members</h1>
+<table class="table align-middle">
+  <thead><tr><th>Name</th><th>Email</th><th>Role</th><th></th></tr></thead>
+  <tbody>
+  {% for member in members %}
+  <tr{% if not member.is_active %} class="text-secondary"{% endif %}>
+    <td>{{ member }}{% if member.is_org_owner %} <span class="badge text-bg-secondary">owner</span>{% endif %}</td>
+    <td>{{ member.email }}</td>
+    <td>{{ member.get_role_display }}{% if not member.is_active %} (inactive){% endif %}</td>
+    <td class="text-end">
+      {% if user.is_org_admin and member.is_active and not member.is_org_owner and member != user %}
+      <form method="post" action="{% url 'deactivate_member' member.id %}">{% csrf_token %}<button class="btn btn-sm btn-outline-danger">Deactivate</button></form>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% if invitations %}
+<h2 class="h5 mt-4">Pending invitations</h2>
+<table class="table align-middle">
+  <tbody>
+  {% for invitation in invitations %}
+  <tr>
+    <td>{{ invitation.email }}</td>
+    <td>{{ invitation.role }}</td>
+    <td>{% if invitation.is_valid %}expires {{ invitation.expires_at|date:"Y-m-d" }}{% else %}expired{% endif %}</td>
+    <td class="text-end">
+      {% if user.is_org_admin %}
+      <form method="post" action="{% url 'revoke_invitation' invitation.id %}">{% csrf_token %}<button class="btn btn-sm btn-outline-secondary">Revoke</button></form>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{% if user.is_org_admin %}
+<h2 class="h5 mt-4">Invite a member</h2>
+{% if can_add_user %}
+<form method="post" action="{% url 'invite_member' %}" class="row g-2 align-items-end">
+  {% csrf_token %}
+  <div class="col-md-5"><label class="form-label" for="id_email">Email</label>{{ form.email }}</div>
+  <div class="col-md-3"><label class="form-label" for="id_role">Role</label>{{ form.role }}</div>
+  <div class="col-md-2"><button class="btn btn-primary w-100">Invite</button></div>
+</form>
+{% else %}
+<p class="text-secondary">Your plan's user limit is reached.</p>
+{% endif %}
+{% endif %}
+{% endblock %}

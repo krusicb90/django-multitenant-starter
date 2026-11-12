@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Create an organization - {{ site_name }}{% endblock %}
+{% block content %}
+<div class="narrow">
+  <h1 class="h3 mb-4">Create an organization</h1>
+  <form method="post">
+    {% csrf_token %}
+    {% include "_form.html" %}
+    {% include "_turnstile.html" %}
+    <button class="btn btn-primary w-100">Start trial</button>
+  </form>
+  <p class="mt-3 small">Already have an account? <a href="{% url 'login' %}">Sign in</a></p>
+</div>
+{% endblock %}

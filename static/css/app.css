@@ -1,0 +1,12 @@
+.narrow { max-width: 26rem; margin: 2rem auto; }
+
+/* Django renders plain form controls; give them the Bootstrap look. */
+input[type="text"], input[type="email"], input[type="password"], textarea, select {
+  display: block;
+  width: 100%;
+  padding: .375rem .75rem;
+  border: 1px solid #ced4da;
+  border-radius: .375rem;
+}
+
+.impersonation-bar { background: #b02a37; color: #fff; padding: .5rem 1rem; text-align: center; }

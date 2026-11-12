@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ org.name }} - Superadmin{% endblock %}
+{% block content %}
+<p><a href="{% url 'superadmin_dashboard' %}">&larr; Organizations</a></p>
+<h1 class="h3 mb-3">{{ org.name }}</h1>
+<table class="table w-auto">
+  <tr><th>Status</th><td>{{ org.get_status_display }}</td></tr>
+  <tr><th>Database</th><td><code>{{ org.db_name }}</code>{% if not org.db_ready %} (not ready){% endif %}</td></tr>
+  <tr><th>Plan</th><td>{{ org.plan.name|default:"-" }}</td></tr>
+  <tr><th>Licence</th><td>{{ org_subscription.get_status_display|default:"-" }}{% if org_subscription.in_grace %} (grace period){% endif %}</td></tr>
+  <tr><th>Ends</th><td>{{ org_subscription.end_date|date:"Y-m-d"|default:"-" }}</td></tr>
+</table>
+
+<div class="row g-4">
+  <div class="col-md-6">
+    <h2 class="h5">Activate licence</h2>
+    <form method="post" action="{% url 'superadmin_organization_action' org.id %}" class="row g-2">
+      {% csrf_token %}<input type="hidden" name="action" value="activate">
+      <div class="col-5"><select name="plan" class="form-select">{% for plan in plans %}{% if not plan.is_trial %}<option value="{{ plan.id }}">{{ plan.name }}</option>{% endif %}{% endfor %}</select></div>
+      <div class="col-4"><select name="interval" class="form-select">{% for value, label in intervals %}<option value="{{ value }}">{{ label }}</option>{% endfor %}</select></div>
+      <div class="col-3"><button class="btn btn-primary w-100">Activate</button></div>
+    </form>
+  </div>
+  <div class="col-md-6">
+    <h2 class="h5">Extend licence</h2>
+    <form method="post" action="{% url 'superadmin_organization_action' org.id %}" class="row g-2">
+      {% csrf_token %}<input type="hidden" name="action" value="extend">
+      <div class="col-4"><input name="months" type="number" min="0" class="form-control" placeholder="Months"></div>
+      <div class="col-5"><input name="until" type="date" class="form-control"></div>
+      <div class="col-3"><button class="btn btn-primary w-100">Extend</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="d-flex gap-2 mt-4">
+  <form method="post" action="{% url 'superadmin_organization_action' org.id %}">
+    {% csrf_token %}<input type="hidden" name="action" value="cancel">
+    <button class="btn btn-outline-secondary">Cancel licence</button>
+  </form>
+  <form method="post" action="{% url 'superadmin_organization_action' org.id %}">
+    {% csrf_token %}<input type="hidden" name="action" value="{% if org.is_active %}suspend{% else %}reactivate{% endif %}">
+    <button class="btn btn-outline-secondary">{% if org.is_active %}Suspend{% else %}Reactivate{% endif %}</button>
+  </form>
+</div>
+
+<h2 class="h5 mt-4">Members</h2>
+<table class="table align-middle">
+  <tbody>
+  {% for member in org_members %}
+  <tr>
+    <td>{{ member }}{% if member.is_org_owner %} <span class="badge text-bg-secondary">owner</span>{% endif %}</td>
+    <td>{{ member.email }}</td>
+    <td>{{ member.get_role_display }}{% if not member.is_active %} (inactive){% endif %}</td>
+    <td class="text-end">
+      {% if member.is_active and org.db_ready %}
+      <form method="post" action="{% url 'superadmin_impersonate' member.id %}">{% csrf_token %}<button class="btn btn-sm btn-outline-primary">Sign in as</button></form>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h2 class="h5 mt-4">History</h2>
+{% include "superadmin/_log.html" with entries=log %}
+
+<h2 class="h5 mt-4 text-danger">Delete organization</h2>
+<p>Deletes the organization, its users and its database. Type <code>{{ org.slug }}</code> to confirm.</p>
+<form method="post" action="{% url 'superadmin_organization_delete' org.id %}" class="row g-2">
+  {% csrf_token %}
+  <div class="col-md-4"><input name="confirm" class="form-control" autocomplete="off"></div>
+  <div class="col-md-2"><button class="btn btn-danger w-100">Delete</button></div>
+</form>
+{% endblock %}

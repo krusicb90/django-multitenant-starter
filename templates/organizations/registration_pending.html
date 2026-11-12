@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="narrow">
+  <h1 class="h3 mb-4">Check your inbox</h1>
+  <p>We sent you an email with a link to confirm your address. Your workspace is created when you confirm it.</p>
+  <p class="small"><a href="{% url 'resend_verification' %}">Send the email again</a></p>
+</div>
+{% endblock %}

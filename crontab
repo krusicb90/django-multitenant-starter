@@ -1,0 +1,7 @@
+# Run by supercronic in the "cron" container. Times are in the container's time zone (UTC).
+
+# Expire ended trials and licences past their grace period.
+15 1 * * * python /app/manage.py expire_licences
+
+# Remind owners whose trial or licence is about to end.
+0 7 * * * python /app/manage.py send_licence_reminders

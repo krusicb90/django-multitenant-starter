@@ -1,0 +1,51 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ site_name }}{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+{% if impersonator %}
+<div class="impersonation-bar">
+  <form method="post" action="{% url 'superadmin_stop_impersonation' %}">
+    {% csrf_token %}
+    Signed in as <strong>{{ user }}</strong> ({{ organization.name }}) on behalf of {{ impersonator.username }}.
+    <button class="btn btn-sm btn-light ms-2">Stop</button>
+  </form>
+</div>
+{% endif %}
+<nav class="navbar navbar-expand bg-body-tertiary border-bottom">
+  <div class="container">
+    <a class="navbar-brand" href="{% url 'dashboard' %}">{{ site_name }}</a>
+    {% if user.is_authenticated %}
+    <ul class="navbar-nav me-auto">
+      {% if organization %}
+      <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Notes</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'members' %}">Members</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'licence_status' %}">Licence</a></li>
+      {% endif %}
+      {% if user.is_superuser and not impersonator %}
+      <li class="nav-item"><a class="nav-link" href="{% url 'superadmin_dashboard' %}">Superadmin</a></li>
+      {% endif %}
+    </ul>
+    <span class="navbar-text me-3">{% if organization %}{{ organization.name }} &middot; {% endif %}{{ user }}</span>
+    <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-secondary">Sign out</button></form>
+    {% endif %}
+  </div>
+</nav>
+<main class="container py-4">
+  {% if org_read_only %}
+  <div class="alert alert-warning">The licence of this organization has expired. The workspace is read-only. <a href="{% url 'licence_status' %}">Details</a></div>
+  {% endif %}
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="narrow">
+  <h1 class="h3 mb-4">Resend verification email</h1>
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label" for="email">Email</label>
+      <input class="form-control" type="email" id="email" name="email" required>
+    </div>
+    <button class="btn btn-primary w-100">Send</button>
+  </form>
+</div>
+{% endblock %}

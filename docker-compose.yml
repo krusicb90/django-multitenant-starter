@@ -1,0 +1,45 @@
+# Local development: PostgreSQL plus the Django development server.
+# The values below are for development only.
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: app_main
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: dev-only-password
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app_main"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    environment:
+      DEBUG: "True"
+      SECRET_KEY: dev-only-secret-key
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      DB_HOST: db
+      DB_NAME: app_main
+      DB_USER: app
+      DB_PASSWORD: dev-only-password
+      # Print emails to the container log and skip the verification step.
+      EMAIL_BACKEND: django.core.mail.backends.console.EmailBackend
+      SKIP_EMAIL_VERIFICATION: "True"
+      SUPERUSER_USERNAME: admin
+      SUPERUSER_EMAIL: admin@example.com
+      SUPERUSER_PASSWORD: dev-only-password
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

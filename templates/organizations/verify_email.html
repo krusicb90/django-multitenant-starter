@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="narrow">
+  {% if invalid %}
+  <h1 class="h3 mb-4">Link not valid</h1>
+  <p>This verification link is invalid or has expired. <a href="{% url 'resend_verification' %}">Request a new one.</a></p>
+  {% else %}
+  <h1 class="h3 mb-4">Confirm your email address</h1>
+  <p>Confirm <strong>{{ email }}</strong> to activate your account and create your workspace.</p>
+  <form method="post">
+    {% csrf_token %}
+    <button class="btn btn-primary w-100">Confirm</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

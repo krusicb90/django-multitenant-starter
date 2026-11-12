@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Blocked IPs - Superadmin{% endblock %}
+{% block content %}
+<p><a href="{% url 'superadmin_dashboard' %}">&larr; Organizations</a></p>
+<h1 class="h3 mb-3">Blocked IPs</h1>
+<form method="post" class="row g-2 mb-4">
+  {% csrf_token %}<input type="hidden" name="action" value="block">
+  <div class="col-md-3"><input name="ip" class="form-control" placeholder="IP address" required></div>
+  <div class="col-md-5"><input name="reason" class="form-control" placeholder="Reason"></div>
+  <div class="col-md-2"><button class="btn btn-primary w-100">Block</button></div>
+</form>
+<table class="table align-middle">
+  <tbody>
+  {% for entry in blocked %}
+  <tr>
+    <td><code>{{ entry.ip }}</code></td>
+    <td>{{ entry.reason }}</td>
+    <td class="text-secondary">{{ entry.blocked_at|date:"Y-m-d H:i" }}</td>
+    <td class="text-end">
+      <form method="post">{% csrf_token %}<input type="hidden" name="action" value="unblock"><input type="hidden" name="id" value="{{ entry.id }}"><button class="btn btn-sm btn-outline-secondary">Unblock</button></form>
+    </td>
+  </tr>
+  {% empty %}
+  <tr><td class="text-secondary">No blocked addresses.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+<h2 class="h5 mt-4">Rate limiter log</h2>
+<table class="table table-sm">
+  <tbody>
+  {% for entry in rate_limit_log %}
+  <tr><td class="text-secondary">{{ entry.blocked_at|date:"Y-m-d H:i" }}</td><td><code>{{ entry.ip }}</code></td><td>{{ entry.endpoint }}</td><td>{{ entry.attempt_count }} attempts</td></tr>
+  {% empty %}
+  <tr><td class="text-secondary">Nothing yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

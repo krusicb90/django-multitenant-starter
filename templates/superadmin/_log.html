@@ -1,0 +1,15 @@
+<table class="table table-sm">
+  <tbody>
+  {% for entry in entries %}
+  <tr>
+    <td class="text-secondary">{{ entry.created_at|date:"Y-m-d H:i" }}</td>
+    <td>{{ entry.organization.name|default:"" }}</td>
+    <td><code>{{ entry.event }}</code></td>
+    <td>{{ entry.message }}</td>
+    <td>{{ entry.actor.username|default:"system" }}</td>
+  </tr>
+  {% empty %}
+  <tr><td class="text-secondary">Nothing yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
