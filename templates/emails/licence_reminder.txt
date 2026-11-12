@@ -1,0 +1,7 @@
+Hello,
+
+{% if kind == "trial" %}the trial of {{ organization.name }} on {{ site_name }} ends in {{ days_left }} day(s).{% else %}the licence of {{ organization.name }} on {{ site_name }} expires in {{ days_left }} day(s).{% endif %}
+
+After that the workspace becomes read-only until the licence is renewed. Your data stays available.
+
+{{ url }}

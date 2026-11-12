@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Sign in - {{ site_name }}{% endblock %}
+{% block content %}
+<div class="narrow">
+  <h1 class="h3 mb-4">Sign in</h1>
+  <form method="post">
+    {% csrf_token %}
+    {% include "_form.html" %}
+    {% include "_turnstile.html" %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="btn btn-primary w-100">Sign in</button>
+  </form>
+  <p class="mt-3 small">
+    <a href="{% url 'password_reset' %}">Forgot your password?</a> &middot;
+    <a href="{% url 'register' %}">Create an organization</a>
+  </p>
+</div>
+{% endblock %}

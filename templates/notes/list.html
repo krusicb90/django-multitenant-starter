@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Notes - {{ site_name }}{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">Notes</h1>
+{% if limit_reached %}
+<p class="text-secondary">Your plan allows {{ limit }} notes.</p>
+{% elif not org_read_only %}
+<form method="post" action="{% url 'note_create' %}" class="mb-4">
+  {% csrf_token %}
+  {% include "_form.html" %}
+  <button class="btn btn-primary">Add note</button>
+</form>
+{% endif %}
+{% for note in notes %}
+<div class="card mb-2">
+  <div class="card-body d-flex justify-content-between">
+    <div>
+      <h2 class="h6 mb-1">{{ note.title }}</h2>
+      {% if note.body %}<p class="mb-1">{{ note.body|linebreaksbr }}</p>{% endif %}
+      <span class="text-secondary small">{{ note.author_name }} &middot; {{ note.created_at|date:"Y-m-d H:i" }}</span>
+    </div>
+    <form method="post" action="{% url 'note_delete' note.id %}">{% csrf_token %}<button class="btn btn-sm btn-outline-danger">Delete</button></form>
+  </div>
+</div>
+{% empty %}
+<p class="text-secondary">No notes yet.</p>
+{% endfor %}
+{% endblock %}

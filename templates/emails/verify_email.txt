@@ -1,0 +1,7 @@
+Hello {{ user.first_name }},
+
+confirm your email address to finish setting up your organization on {{ site_name }}:
+
+{{ url }}
+
+The link is valid for 48 hours. If you did not create this account, you can ignore this email.

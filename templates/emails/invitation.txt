@@ -1,0 +1,9 @@
+Hello,
+
+{{ invitation.invited_by }} invited you to join {{ invitation.organization.name }} on {{ site_name }}.
+
+Accept the invitation and create your account here:
+
+{{ url }}
+
+The invitation expires on {{ invitation.expires_at|date:"Y-m-d" }}.

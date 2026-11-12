@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Licence - {{ site_name }}{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">Licence</h1>
+<table class="table w-auto">
+  <tr><th>Plan</th><td>{{ organization.plan.name|default:"-" }}</td></tr>
+  <tr><th>Status</th><td>{{ subscription.get_status_display|default:"-" }}{% if subscription.in_grace %} (grace period){% endif %}</td></tr>
+  <tr><th>{% if subscription.status == "trialing" %}Trial ends{% else %}Valid until{% endif %}</th><td>{{ subscription.end_date|date:"Y-m-d"|default:"-" }}</td></tr>
+  <tr><th>Users</th><td>{{ organization.user_count }}{% if organization.plan.user_limit %} of {{ organization.plan.user_limit }}{% endif %}</td></tr>
+</table>
+<h2 class="h5 mt-4">Plans</h2>
+<table class="table">
+  <thead><tr><th>Plan</th><th>Users</th><th>Records</th><th>Monthly</th><th>Yearly</th></tr></thead>
+  <tbody>
+  {% for plan in plans %}
+  <tr>
+    <td>{{ plan.name }}</td>
+    <td>{{ plan.user_limit|default:"Unlimited" }}</td>
+    <td>{{ plan.item_limit|default:"Unlimited" }}</td>
+    <td>{{ plan.price_monthly }}</td>
+    <td>{{ plan.price_yearly }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p class="text-secondary small">Licences are activated and extended by the platform team.</p>
+{% endblock %}

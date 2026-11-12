@@ -1,0 +1,74 @@
+# Production stack for a single Docker host. Copied to ${APP_DIR}/docker-compose.yml.
+# PostgreSQL runs outside this file (a managed service or a separate host);
+# connection details come from .env. See .env.production.example.
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  web:
+    image: ${IMAGE}:${IMAGE_TAG:-latest}
+    container_name: app-web
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - static:/app/staticfiles
+    expose:
+      - "8000"
+    healthcheck:
+      # ALLOWED_HOSTS must contain "localhost" for this check to pass.
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health/', timeout=5).status == 200 else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 180s   # the entrypoint migrates every tenant database first
+    logging: *default-logging
+
+  cron:
+    image: ${IMAGE}:${IMAGE_TAG:-latest}
+    container_name: app-cron
+    restart: unless-stopped
+    init: true
+    entrypoint: []
+    command: supercronic /app/crontab
+    env_file: .env
+    depends_on:
+      web:
+        condition: service_healthy
+    logging: *default-logging
+
+  redis:
+    image: redis:7-alpine
+    container_name: app-redis
+    restart: unless-stopped
+    command: redis-server --save "" --appendonly no --maxmemory 64mb --maxmemory-policy allkeys-lru
+    logging: *default-logging
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: app-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - static:/app/staticfiles:ro
+      - ./nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      web:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/nginx-health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging: *default-logging
+
+volumes:
+  static:

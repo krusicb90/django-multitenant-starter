@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="narrow">
+  {% if invalid %}
+  <h1 class="h3 mb-4">Invitation not valid</h1>
+  <p>This invitation is invalid, has expired or was already used.</p>
+  {% else %}
+  <h1 class="h3 mb-4">Join {{ invitation.organization.name }}</h1>
+  <p class="text-secondary">Account for {{ invitation.email }}</p>
+  <form method="post">
+    {% csrf_token %}
+    {% include "_form.html" %}
+    <button class="btn btn-primary w-100">Create account</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

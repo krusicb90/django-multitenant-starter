@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="narrow">
+  {% if pending_organization %}
+  <h1 class="h3 mb-4">Your workspace is not ready yet</h1>
+  <p>The database of {{ pending_organization.name }} has not been created yet.</p>
+  {% if user.is_org_admin %}
+  <form method="post">
+    {% csrf_token %}
+    <button class="btn btn-primary">Set up now</button>
+  </form>
+  {% else %}
+  <p>Ask an admin of your organization to finish the setup.</p>
+  {% endif %}
+  {% else %}
+  <h1 class="h3 mb-4">No organization</h1>
+  <p>Your account does not belong to an organization. Ask an admin for an invitation.</p>
+  {% endif %}
+</div>
+{% endblock %}
