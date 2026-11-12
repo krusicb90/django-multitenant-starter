@@ -91,7 +91,7 @@ jobs:
       - name: Start the stack
         run: docker compose up --build --detach --wait --wait-timeout 180
       - name: Health check
-        run: curl --fail --silent --show-error --retry 10 --retry-connrefused --retry-delay 3 http://localhost:8000/health/
+        run: curl --fail --silent --show-error --retry 10 --retry-all-errors --retry-delay 3 http://localhost:8000/health/
       - name: Sign up and reach the tenant dashboard
         run: |
           set -euo pipefail
